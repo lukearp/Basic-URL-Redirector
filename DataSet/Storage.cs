@@ -105,18 +105,22 @@ public class DataLoad : BackgroundService, IDisposable
             _logger.LogInformation("Hostname: {Hostname}, TimeStamp: {TimeStamp}",[hostname.hostname, DateTime.Now.ToString()]);
             HostnameRedirects thisHost = new HostnameRedirects() { hostname = hostname.hostname, defaultTarget = hostname.defaultTarget};
             blobClient = blobContainerClient.GetBlobClient(hostname.hostname + ".json");
-            Stream blobStream = blobClient.OpenRead();
-            using (MemoryStream ms = new MemoryStream())
-            {
-                blobStream.CopyTo(ms);
-                ms.Position = 0;
-                using (StreamReader reader = new StreamReader(ms))
+            try {
+                Stream blobStream = blobClient.OpenRead();
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    string text = reader.ReadToEnd();
-                    thisHost.urlRedirects = JsonConvert.DeserializeObject<UrlRedirects>(text);
+                    blobStream.CopyTo(ms);
+                    ms.Position = 0;
+                    using (StreamReader reader = new StreamReader(ms))
+                    {
+                        string text = reader.ReadToEnd();
+                        thisHost.urlRedirects = JsonConvert.DeserializeObject<UrlRedirects>(text);
+                    }
                 }
+                thisRedirectList.Add(thisHost);
+            } catch {
+               _logger.LogInformation(hostname.hostname + ".json not Found"); 
             }
-            thisRedirectList.Add(thisHost);
         }
         redirectMaps = thisRedirectList;
     }
