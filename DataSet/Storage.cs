@@ -117,10 +117,10 @@ public class DataLoad : BackgroundService, IDisposable
                         thisHost.urlRedirects = JsonConvert.DeserializeObject<UrlRedirects>(text);
                     }
                 }
-                thisRedirectList.Add(thisHost);
             } catch {
                _logger.LogInformation(hostname.hostname + ".json not Found"); 
             }
+            thisRedirectList.Add(thisHost);
         }
         redirectMaps = thisRedirectList;
     }
